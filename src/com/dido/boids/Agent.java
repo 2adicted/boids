@@ -7,6 +7,11 @@ import processing.core.PVector;
 
 public class Agent {
 	PApplet parent;
+	
+	private ArrayList<Zone> zones;
+	private FlowField map;
+	private Boundary b;
+	
 	int age;
 	int lifeExpectancy;
 	PVector location;
@@ -25,8 +30,11 @@ public class Agent {
 	int previousTime;
 	ArrayList<Pointer> trace_list;
 
-	Agent(PApplet p, PVector l) {
+	Agent(PApplet p, ArrayList<Zone> z, FlowField m, Boundary b, PVector l) {
 		parent = p;
+		zones = z;
+		map = m;
+		this.b = b;
 		age = 0;
 		lifeExpectancy = 40;
 		location = l.get();
@@ -35,7 +43,7 @@ public class Agent {
 		maxforce = 0.5;
 		acceleration = new PVector(0, 0);
 		velocity = new PVector(0, 0);
-		hoover = this.hoover;
+//		hoover = this.hoover;
 		wandertheta = 0;
 		c = 0.2;
 		trace = new ArrayList<PVector>();
@@ -92,7 +100,7 @@ public class Agent {
 		{
 			if (hoover(zones.get(i).origin, zones.get(i).magnitude))
 			{
-				trace_list.add(new Pointer(zones.get(i),parent.millis()));
+				trace_list.add(new Pointer(parent, zones.get(i),parent.millis()));
 				if (check [1][i]) follow(i);
 				if (!check [1][i]) unfollow(i);
 			}

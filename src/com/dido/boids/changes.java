@@ -9,13 +9,14 @@ public class changes extends PApplet {
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-	
-	FlowField map;
-	Boundary b;
-	Death death;
 
 	public ArrayList<Zone> zones;
-	ArrayList<Agent> agents;
+	public ArrayList<Agent> agents;
+	
+	public FlowField map;
+	public Boundary b;
+	public Death death;
+
 
 	boolean debug = false;
 	boolean trace = false;
@@ -24,9 +25,9 @@ public class changes extends PApplet {
 	public void setup() {		
 		size(500, 250);
 		smooth();
-		map = new FlowField(this);
 		zones = new ArrayList<Zone>();
 		agents = new ArrayList<Agent>();
+		map = new FlowField(this, zones);
 		b = new Boundary(this, 8);
 		death = new Death(this);
 		for (int i = 0; i < 10; i++) zones.add(new Zone(this, new PVector(random(width), random(height)), (random(10, 100))));	
@@ -68,7 +69,7 @@ public class changes extends PApplet {
 		}
 		if (mouseButton == RIGHT) {
 			for (int i = 0; i < 20; i++)
-				agents.add(new Agent(this, new PVector(width / 2, height)));
+				agents.add(new Agent(this, zones, map, b, new PVector(width / 2, height)));
 		}
 	}
 

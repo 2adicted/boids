@@ -1,11 +1,16 @@
 package com.dido.boids;
 
+import java.util.ArrayList;
+
 import processing.core.PApplet;
 import processing.core.PConstants;
 import processing.core.PVector;
 
 public class FlowField {
 	PApplet parent;
+	
+	private ArrayList<Zone> zones;
+	
 	PVector[][] field;
 	PVector[][] location;
 	PVector origin;
@@ -15,9 +20,10 @@ public class FlowField {
 	int n_min;
 	float zoff = 0.0f;
 
-	FlowField(PApplet p)
+	FlowField(PApplet p, ArrayList<Zone> z)
 	{
 		parent = p;
+		zones = z;
 		n_min = 6;
 		for (int i = n_min; i < 50; i++)
 		{
@@ -66,7 +72,7 @@ public class FlowField {
 		zoff += 0.01;
 	}
 
-	void update()
+	public void update()
 	{    
 		if (zones.size() > 0) 
 		{ 
