@@ -1,17 +1,13 @@
 package com.dido.boids;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 
-import processing.core.PApplet;
 import processing.core.PVector;
 
 public class Agent {
-	PApplet parent;
-	
-	private ArrayList<Zone> zones;
-	private FlowField map;
-	private Boundary b;
-	
+	changes parent;
+
 	int age;
 	int lifeExpectancy;
 	PVector location;
@@ -19,22 +15,19 @@ public class Agent {
 	PVector acceleration;
 	float r;
 	float wandertheta;
-	double maxforce;    // Maximum steering force
-	float maxspeed;    // Maximum speed
+	double maxforce; // Maximum steering force
+	float maxspeed; // Maximum speed
 	boolean hoover;
-	double c;           // Drag co
-	int [] time;  
+	double c; // Drag co
+	int[] time;
 	ArrayList<PVector> trace;
-	boolean [][] check;
+	boolean[][] check;
 	float lifespan;
 	int previousTime;
 	ArrayList<Pointer> trace_list;
 
-	Agent(PApplet p, ArrayList<Zone> z, FlowField m, Boundary b, PVector l) {
+	Agent(changes p, PVector l) {
 		parent = p;
-		zones = z;
-		map = m;
-		this.b = b;
 		age = 0;
 		lifeExpectancy = 40;
 		location = l.get();
@@ -43,22 +36,16 @@ public class Agent {
 		maxforce = 0.5;
 		acceleration = new PVector(0, 0);
 		velocity = new PVector(0, 0);
-//		hoover = this.hoover;
 		wandertheta = 0;
 		c = 0.2;
 		trace = new ArrayList<PVector>();
 		PVector tr = location.get();
 		trace.add(tr);
 		/*
-		check = new boolean [2][zones.size()];
-		time  = new int [zones.size()];
-		for (int i = 0; i<zones.size(); ++i)
-		{
-			check [0][i] = true;
-			check [1][i] = true;
-			time  [i]    = 1000000;
-		}
-		*/
+		 * check = new boolean [2][zones.size()]; time = new int [zones.size()];
+		 * for (int i = 0; i<zones.size(); ++i) { check [0][i] = true; check
+		 * [1][i] = true; time [i] = 1000000; }
+		 */
 		lifespan = 100;
 		trace_list = new ArrayList<Pointer>();
 	}
@@ -89,27 +76,37 @@ public class Agent {
 		parent.strokeWeight((float) 0.5);
 		parent.pushMatrix();
 		parent.translate(location.x, location.y);
-		parent.ellipse(0, 0, 2*r, 2*r);
+		parent.ellipse(0, 0, 2 * r, 2 * r);
 		parent.popMatrix();
 	}
 
-	void monitor()
-	{
-		//	    runcheck();
-		for (int i = 0; i<zones.size(); ++i)
-		{
-			if (hoover(zones.get(i).origin, zones.get(i).magnitude))
-			{
-				trace_list.add(new Pointer(parent, zones.get(i),parent.millis()));
-				if (check [1][i]) follow(i);
-				if (!check [1][i]) unfollow(i);
+	void monitor() {
+		for (int i = 0; i < parent.zones.size(); ++i) {
+			if (hoover(parent.zones.get(i).origin,
+					parent.zones.get(i).magnitude)) {
+				trace_list
+						.add(new Pointer(parent.zones.get(i), parent.millis()));
+			}
+		}
+
+		Iterator<Pointer> pt = trace_list.iterator();
+
+		while (pt.hasNext()) {
+			Pointer a = pt.next();
+			if (a.time + 5000 > parent.millis()) {
+				follow();
+			} else {
+				unfollow();
+			}
+			if (a.time + 10000 < parent.millis()) {
+				follow();
+				pt.remove();
 			}
 		}
 	}
 
-	void behave(ArrayList<Agent> agents)
-	{
-		PVector sep = separate(agents);   
+	void behave(ArrayList<Agent> agents) {
+		PVector sep = separate(agents);
 		PVector ali = align(agents);
 		PVector coh = cohesion(agents);
 		sep.mult(0.5f);
@@ -124,9 +121,8 @@ public class Agent {
 		acceleration.add(force);
 	}
 
-	void follow(int i) 
-	{
-		PVector desired = map.lookup(location);
+	void follow() {
+		PVector desired = parent.map.lookup(location);
 		desired.mult(5.0f);
 		PVector steer = PVector.sub(desired, velocity);
 		PVector dragForce = liquify();
@@ -134,9 +130,8 @@ public class Agent {
 		applyForce(steer);
 	}
 
-	void unfollow(int i) 
-	{
-		PVector desired = map.lookup(location);
+	void unfollow() {
+		PVector desired = parent.map.lookup(location);
 		desired.mult(-15.0f);
 		PVector steer = PVector.sub(desired, velocity);
 		PVector dragForce = liquify();
@@ -145,106 +140,92 @@ public class Agent {
 	}
 
 	void wander() {
-		float wanderR = 15;         // Radius for our "wander circle"
-		float wanderD = 80;         // Distance for our "wander circle"
+		float wanderR = 15; // Radius for our "wander circle"
+		float wanderD = 80; // Distance for our "wander circle"
 		float change = 20.3f;
-		wandertheta += parent.random(-change, change);     // Randomly change wander theta
+		wandertheta += parent.random(-change, change); // Randomly change wander
+														// theta
 
-		// Now we have to calculate the new location to steer towards on the wander circle
-		PVector circleloc = velocity.get();    // Start with velocity
-		circleloc.normalize();            // Normalize to get heading
-		circleloc.mult(wanderD);          // Multiply by distance
-		circleloc.add(location);               // Make it relative to boid's location
+		// Now we have to calculate the new location to steer towards on the
+		// wander circle
+		PVector circleloc = velocity.get(); // Start with velocity
+		circleloc.normalize(); // Normalize to get heading
+		circleloc.mult(wanderD); // Multiply by distance
+		circleloc.add(location); // Make it relative to boid's location
 
 		@SuppressWarnings("deprecation")
-		float h = velocity.heading2D();        // We need to know the heading to offset wandertheta
+		float h = velocity.heading2D(); // We need to know the heading to offset
+										// wandertheta
 
-		PVector circleOffSet = new PVector((float) (wanderR*Math.cos(wandertheta+h)), (float) (wanderR*Math.sin(wandertheta+h)));
+		PVector circleOffSet = new PVector(
+				(float) (wanderR * Math.cos(wandertheta + h)),
+				(float) (wanderR * Math.sin(wandertheta + h)));
 		PVector target = PVector.add(circleloc, circleOffSet);
 		PVector locomotion = seek(target);
 		applyForce(locomotion);
-	}  
+	}
 
-	void tracepath()
-	{
+	void tracepath() {
 		PVector tr = location.get();
 		trace.add(tr);
 	}
 
-	void displaypath()
-	{
+	void displaypath() {
 		parent.fill(0);
 		parent.noStroke();
-		for (PVector tr : trace)
-		{
+		for (PVector tr : trace) {
 			parent.ellipse(tr.x, tr.y, 1, 1);
 		}
 	}
 
-	PVector previousLocation = new PVector (1000, 1000);
+	PVector previousLocation = new PVector(1000, 1000);
 
-	void isStuck()
-	{
+	void isStuck() {
 		PVector currentLocation = location.get();
 		int currentTime = parent.millis();
-		if (currentTime - previousTime > 15000)
-		{
+		if (currentTime - previousTime > 15000) {
 			previousTime = currentTime;
 			previousLocation = currentLocation.get();
 		}
-		if (currentLocation.dist(previousLocation) < 10)
-		{            
+		if (currentLocation.dist(previousLocation) < 10) {
 			lifespan -= 0.2;
 		}
 	}
 
-	boolean isDead()
-	{
+	boolean isDead() {
 		isStuck();
-		if (lifespan < 0.0)
-		{
-			//      println("is dead");
+		if (lifespan < 0.0) {
+			// println("is dead");
 			return true;
-		} 
-		else {
+		} else {
 			return false;
 		}
 	}
 
-	boolean natural()
-	{
-		if (age > lifeExpectancy)
-		{
+	boolean natural() {
+		if (age > lifeExpectancy) {
 			return true;
-		} 
-		else {
+		} else {
 			return false;
 		}
 	}
 
-
-	void runcheck()
-	{
-		int ct=0;
-		for (Zone z : zones)
-		{
-			if (hoover(z.origin, z.magnitude))
-			{
-				if (check[0][ct])
-				{
+	void runcheck() {
+		int ct = 0;
+		for (Zone z : parent.zones) {
+			if (hoover(z.origin, z.magnitude)) {
+				if (check[0][ct]) {
 					check[0][ct] = false;
-					time    [ct] = parent.millis();
+					time[ct] = parent.millis();
 				}
 			}
-			if (!check[0][ct])
-			{
-				if (time [ct] + 4000 < parent.millis())
-				{       
-					check [1][ct] = false; //ban
-				} 
-				if (time [ct] + 15000 < parent.millis()) {
-					check [0][ct] = true;
-					check [1][ct] = true; //unban
+			if (!check[0][ct]) {
+				if (time[ct] + 4000 < parent.millis()) {
+					check[1][ct] = false; // ban
+				}
+				if (time[ct] + 15000 < parent.millis()) {
+					check[0][ct] = true;
+					check[1][ct] = true; // unban
 				}
 			}
 		}
@@ -252,26 +233,27 @@ public class Agent {
 
 	// Separation
 	// Method checks for nearby boids and steers away
-	PVector separate (ArrayList<Agent> agents) {
+	PVector separate(ArrayList<Agent> agents) {
 		float desiredseparation = 25.0f;
 		PVector steer = new PVector(0, 0, 0);
 		int count = 0;
 		// For every boid in the system, check if it's too close
 		for (Agent other : agents) {
 			float d = PVector.dist(location, other.location);
-			// If the distance is greater than 0 and less than an arbitrary amount (0 when you are yourself)
+			// If the distance is greater than 0 and less than an arbitrary
+			// amount (0 when you are yourself)
 			if ((d > 0) && (d < desiredseparation)) {
 				// Calculate vector pointing away from neighbor
 				PVector diff = PVector.sub(location, other.location);
 				diff.normalize();
-				diff.div(d);        // Weight by distance
+				diff.div(d); // Weight by distance
 				steer.add(diff);
-				count++;            // Keep track of how many
+				count++; // Keep track of how many
 			}
 		}
 		// Average -- divide by how many
 		if (count > 0) {
-			steer.div((float)count);
+			steer.div((float) count);
 		}
 
 		// As long as the vector is greater than 0
@@ -287,7 +269,7 @@ public class Agent {
 
 	// Alignment
 	// For every nearby boid in the system, calculate the average velocity
-	PVector align (ArrayList<Agent> agents) {
+	PVector align(ArrayList<Agent> agents) {
 		float neighbordist = 20;
 		PVector sum = new PVector(0, 0);
 		int count = 0;
@@ -299,24 +281,24 @@ public class Agent {
 			}
 		}
 		if (count > 0) {
-			sum.div((float)count);
+			sum.div((float) count);
 			sum.normalize();
 			sum.mult(maxspeed);
 			PVector steer = PVector.sub(sum, velocity);
 			steer.limit((float) maxforce);
 			return steer;
-		} 
-		else {
+		} else {
 			return new PVector(0, 0);
 		}
 	}
 
-
 	// Cohesion
-	// For the average location (i.e. center) of all nearby boids, calculate steering vector towards that location
-	PVector cohesion (ArrayList<Agent> agents) {
+	// For the average location (i.e. center) of all nearby boids, calculate
+	// steering vector towards that location
+	PVector cohesion(ArrayList<Agent> agents) {
 		float neighbordist = 20;
-		PVector sum = new PVector(0, 0);   // Start with empty vector to accumulate all locations
+		PVector sum = new PVector(0, 0); // Start with empty vector to
+											// accumulate all locations
 		int count = 0;
 		for (Agent other : agents) {
 			float d = PVector.dist(location, other.location);
@@ -327,22 +309,20 @@ public class Agent {
 		}
 		if (count > 0) {
 			sum.div(count);
-			return seek(sum);  // Steer towards the location
-		} 
-		else {
+			return seek(sum); // Steer towards the location
+		} else {
 			return new PVector(0, 0);
 		}
 	}
 
 	PVector seek(PVector target) {
-		PVector desired = PVector.sub(target, location);  
+		PVector desired = PVector.sub(target, location);
 		desired.normalize();
 		PVector steer = PVector.sub(desired, velocity);
 		return steer;
 	}
 
-	PVector liquify()
-	{
+	PVector liquify() {
 		float speed = this.velocity.mag();
 		float dragMagnitude = (float) (c * speed * speed);
 		PVector dragForce = this.velocity.get();
@@ -352,45 +332,47 @@ public class Agent {
 		return dragForce;
 	}
 
-	boolean hoover(PVector origin, int radius)
-	{
-		if (location.x>(origin.x-radius/2) && location.x<(origin.x+radius/2))
-		{
-			if (location.y>(origin.y-radius/2) && location.y<(origin.y+radius/2))
-			{
+	boolean hoover(PVector origin, int radius) {
+		if (location.x > (origin.x - radius / 2)
+				&& location.x < (origin.x + radius / 2)) {
+			if (location.y > (origin.y - radius / 2)
+					&& location.y < (origin.y + radius / 2)) {
 				hoover = true;
 			}
-		} 
-		else {
+		} else {
 			hoover = false;
 		}
 		return hoover;
 	}
 
-	void getold()
-	{
-		if (parent.frameCount%10 == 0)
-		{
+	void getold() {
+		if (parent.frameCount % 10 == 0) {
 			age++;
 		}
 	}
 
 	void borders() {
-		if (location.x-r<b.s_x && velocity.x<0)
-		{
-			velocity.x=-velocity.x;
-		} 
-		if (location.y-r<b.s_y && velocity.y<0)
-		{
-			velocity.y=-velocity.y;
-		} 
-		if (location.x+r>b.e_x && velocity.x>0)
-		{
-			velocity.x=-velocity.x;
-		} 
-		if (location.y+r>b.e_y && velocity.y>0)
-		{
-			velocity.y=-velocity.y;
+		if (location.x - r < parent.b.s_x && velocity.x < 0) {
+			velocity.x = -velocity.x;
+		}
+		if (location.y - r < parent.b.s_y && velocity.y < 0) {
+			velocity.y = -velocity.y;
+		}
+		if (location.x + r > parent.b.e_x && velocity.x > 0) {
+			velocity.x = -velocity.x;
+		}
+		if (location.y + r > parent.b.e_y && velocity.y > 0) {
+			velocity.y = -velocity.y;
+		}
+	}
+
+	class Pointer {
+		Zone my_zone;
+		long time;
+
+		Pointer(Zone z, long t) {
+			my_zone = z;
+			time = t;
 		}
 	}
 }

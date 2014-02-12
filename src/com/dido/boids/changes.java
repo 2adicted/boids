@@ -21,13 +21,16 @@ public class changes extends PApplet {
 	boolean debug = false;
 	boolean trace = false;
 	boolean grand = false;
+	
+	public int counter = 0;
+
 
 	public void setup() {		
 		size(500, 250);
 		smooth();
 		zones = new ArrayList<Zone>();
 		agents = new ArrayList<Agent>();
-		map = new FlowField(this, zones);
+		map = new FlowField(this);
 		b = new Boundary(this, 8);
 		death = new Death(this);
 		for (int i = 0; i < 10; i++) zones.add(new Zone(this, new PVector(random(width), random(height)), (random(10, 100))));	
@@ -69,11 +72,9 @@ public class changes extends PApplet {
 		}
 		if (mouseButton == RIGHT) {
 			for (int i = 0; i < 20; i++)
-				agents.add(new Agent(this, zones, map, b, new PVector(width / 2, height)));
+				agents.add(new Agent(this, new PVector(width / 2, height)));
 		}
 	}
-
-	int counter = 0;
 
 	public void keyPressed() {
 		if (key == 'c') {
