@@ -9,8 +9,7 @@ public class changes extends PApplet {
 	
 	public void setup() {
 		
-		// mega jakia kod
-		
+		// mega jakia kod		
 	}
 	
 	public void draw() {}
