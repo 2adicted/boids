@@ -1,6 +1,7 @@
 package com.dido.boids;
 
 import processing.core.*;
+
 import java.util.*;
 
 public class changes extends PApplet {
@@ -12,20 +13,18 @@ public class changes extends PApplet {
 
 	public ArrayList<Zone> zones;
 	public ArrayList<Agent> agents;
-	
+
 	public FlowField map;
 	public Boundary b;
 	public Death death;
 
-
 	boolean debug = false;
 	boolean trace = false;
 	boolean grand = false;
-	
+
 	public int counter = 0;
 
-
-	public void setup() {		
+	public void setup() {
 		size(500, 250);
 		smooth();
 		zones = new ArrayList<Zone>();
@@ -33,7 +32,10 @@ public class changes extends PApplet {
 		map = new FlowField(this);
 		b = new Boundary(this, 8);
 		death = new Death(this);
-		for (int i = 0; i < 10; i++) zones.add(new Zone(this, new PVector(random(width), random(height)), (random(10, 100))));	
+		for (int i = 0; i < 10; i++)
+			zones.add(new Zone(this,
+					new PVector(random(width), random(height)),
+					(random(10, 100))));
 	}
 
 	public void draw() {
@@ -66,6 +68,7 @@ public class changes extends PApplet {
 		b.draw();
 	}
 
+
 	public void mouseReleased() {
 		if (mouseButton == LEFT) {
 			zones.add(new Zone(this, new PVector(mouseX, mouseY), (random(100))));
@@ -77,6 +80,7 @@ public class changes extends PApplet {
 	}
 
 	public void keyPressed() {
+
 		if (key == 'c') {
 			counter++;
 		}
