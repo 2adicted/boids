@@ -1,5 +1,31 @@
 package com.dido.boids;
 
-public class Death {
+import java.util.ArrayList;
 
+import processing.core.PApplet;
+import processing.core.PVector;
+
+public class Death {
+	PApplet parent;
+	ArrayList<ArrayList<PVector>> life;
+
+	Death(PApplet p) {
+		parent = p;
+		life = new ArrayList<ArrayList<PVector>>();
+	}
+
+	public void leavetrace(ArrayList<PVector> trace) {
+		life.add(trace);
+	}
+
+	void showtrace() {
+		parent.fill(0, 0, 10, 10);
+		parent.noStroke();
+		for (ArrayList<PVector> trace : life) {
+			for (PVector tr : trace) {
+				parent.fill(0);
+				parent.ellipse(tr.x, tr.y, 1, 1);
+			}
+		}
+	}
 }

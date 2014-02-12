@@ -1,14 +1,17 @@
 package com.dido.boids;
 
+import processing.core.PApplet;
 import processing.core.PVector;
 
 public class Zone {
+	PApplet parent;
 	PVector origin;
 	int magnitude;
 
-	Zone(PVector o, int m) {
+	Zone(PApplet p, PVector o, float f) {
+		parent = p;
 		origin = o.get();
-		magnitude = m;
+		magnitude = (int) f;
 	}
 
 	Zone(PVector o) {
@@ -20,7 +23,7 @@ public class Zone {
 	}
 
 	void display() {
-		fill(250, 120);
-		ellipse(origin.x, origin.y, magnitude * 2, magnitude * 2);
+		parent.fill(250, 120);
+		parent.ellipse(origin.x, origin.y, magnitude * 2, magnitude * 2);
 	}
 }
