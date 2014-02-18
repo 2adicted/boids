@@ -3,7 +3,7 @@ package com.dido.boids;
 import processing.core.*;
 import java.util.*;
 
-public class changes extends PApplet {
+public class MyBoids extends PApplet {
 
 	/**
 	 * 
@@ -12,6 +12,8 @@ public class changes extends PApplet {
 
 	public ArrayList<Zone> zones;
 	public ArrayList<Agent> agents;
+	
+	ExportExcel e = new ExportExcel();
 	
 	public FlowField map;
 	public Boundary b;

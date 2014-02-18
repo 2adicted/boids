@@ -6,7 +6,7 @@ import java.util.Iterator;
 import processing.core.PVector;
 
 public class Agent {
-	changes parent;
+	MyBoids parent;
 
 	int age;
 	int lifeExpectancy;
@@ -26,7 +26,7 @@ public class Agent {
 	int previousTime;
 	ArrayList<Pointer> trace_list;
 
-	Agent(changes p, PVector l) {
+	Agent(MyBoids p, PVector l) {
 		parent = p;
 		age = 0;
 		lifeExpectancy = 40;

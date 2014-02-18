@@ -7,7 +7,7 @@ import processing.core.PConstants;
 import processing.core.PVector;
 
 public class FlowField {
-	changes parent;
+	MyBoids parent;
 	PVector[][] field;
 	PVector[][] location;
 	PVector origin;
@@ -17,7 +17,7 @@ public class FlowField {
 	int n_min;
 	float zoff = 0.0f;
 
-	FlowField(changes p) {
+	FlowField(MyBoids p) {
 		parent = p;
 		n_min = 6;
 		for (int i = n_min; i < 50; i++) {
