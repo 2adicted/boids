@@ -1,6 +1,7 @@
 package com.dido.boids;
 
 import processing.core.*;
+
 import java.util.*;
 
 public class MyBoids extends PApplet {
@@ -13,7 +14,7 @@ public class MyBoids extends PApplet {
 	public ArrayList<Zone> zones;
 	public ArrayList<Agent> agents;
 	
-	ExportExcel e = new ExportExcel();
+	
 	
 	public FlowField map;
 	public Boundary b;
@@ -80,7 +81,7 @@ public class MyBoids extends PApplet {
 
 	public void keyPressed() {
 		if (key == 'c') {
-			counter++;
+			death.commit();
 		}
 
 		if (key == 's' || key == 'S') {

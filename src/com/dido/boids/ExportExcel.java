@@ -64,7 +64,7 @@ public class ExportExcel {
 
 	public void saveString() {
 		try {
-			FileOutputStream fileOut = new FileOutputStream("test.xls");
+			FileOutputStream fileOut = new FileOutputStream("traces.xls");
 			workbook.write(fileOut);
 			fileOut.flush();
 			fileOut.close();

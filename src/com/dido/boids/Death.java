@@ -9,9 +9,12 @@ public class Death {
 	PApplet parent;
 	ArrayList<ArrayList<PVector>> life;
 
+	ExportExcel exporter;
+
 	Death(PApplet p) {
 		parent = p;
 		life = new ArrayList<ArrayList<PVector>>();
+		exporter = new ExportExcel();
 	}
 
 	public void leavetrace(ArrayList<PVector> trace) {
@@ -27,5 +30,16 @@ public class Death {
 				parent.ellipse(tr.x, tr.y, 1, 1);
 			}
 		}
+	}
+
+	public void commit() {
+		if (this.life.size() > 0) {
+			System.out.println(true);
+			for (ArrayList<PVector> aList : this.life) {
+				exporter.push(aList);
+				exporter.saveString();
+			}
+		}
+
 	}
 }
