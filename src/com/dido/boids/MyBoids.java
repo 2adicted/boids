@@ -4,7 +4,7 @@ import processing.core.*;
 
 import java.util.*;
 
-public class changes extends PApplet {
+public class MyBoids extends PApplet {
 
 	/**
 	 * 
@@ -13,7 +13,13 @@ public class changes extends PApplet {
 
 	public ArrayList<Zone> zones;
 	public ArrayList<Agent> agents;
+<<<<<<< HEAD:src/com/dido/boids/changes.java
 
+=======
+	
+	
+	
+>>>>>>> origin/excel:src/com/dido/boids/MyBoids.java
 	public FlowField map;
 	public Boundary b;
 	public Death death;
@@ -82,7 +88,7 @@ public class changes extends PApplet {
 	public void keyPressed() {
 
 		if (key == 'c') {
-			counter++;
+			death.commit();
 		}
 
 		if (key == 's' || key == 'S') {
