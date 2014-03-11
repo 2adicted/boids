@@ -34,7 +34,6 @@ public class Death {
 
 	public void commit() {
 		if (this.life.size() > 0) {
-			System.out.println(true);
 			for (ArrayList<PVector> aList : this.life) {
 				exporter.push(aList);
 				exporter.saveString();

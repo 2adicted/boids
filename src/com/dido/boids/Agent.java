@@ -29,7 +29,7 @@ public class Agent {
 	Agent(MyBoids p, PVector l) {
 		parent = p;
 		age = 0;
-		lifeExpectancy = 40;
+		lifeExpectancy = 100;
 		location = l.get();
 		r = 1.5f;
 		maxspeed = 2;
@@ -41,11 +41,6 @@ public class Agent {
 		trace = new ArrayList<PVector>();
 		PVector tr = location.get();
 		trace.add(tr);
-		/*
-		 * check = new boolean [2][zones.size()]; time = new int [zones.size()];
-		 * for (int i = 0; i<zones.size(); ++i) { check [0][i] = true; check
-		 * [1][i] = true; time [i] = 1000000; }
-		 */
 		lifespan = 100;
 		trace_list = new ArrayList<Pointer>();
 	}
@@ -234,7 +229,7 @@ public class Agent {
 	// Separation
 	// Method checks for nearby boids and steers away
 	PVector separate(ArrayList<Agent> agents) {
-		float desiredseparation = 25.0f;
+		float desiredseparation = 10.0f;
 		PVector steer = new PVector(0, 0, 0);
 		int count = 0;
 		// For every boid in the system, check if it's too close

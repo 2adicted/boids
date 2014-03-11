@@ -13,13 +13,7 @@ public class MyBoids extends PApplet {
 
 	public ArrayList<Zone> zones;
 	public ArrayList<Agent> agents;
-<<<<<<< HEAD:src/com/dido/boids/changes.java
 
-=======
-	
-	
-	
->>>>>>> origin/excel:src/com/dido/boids/MyBoids.java
 	public FlowField map;
 	public Boundary b;
 	public Death death;
@@ -38,10 +32,12 @@ public class MyBoids extends PApplet {
 		map = new FlowField(this);
 		b = new Boundary(this, 8);
 		death = new Death(this);
+		/*
 		for (int i = 0; i < 10; i++)
 			zones.add(new Zone(this,
 					new PVector(random(width), random(height)),
 					(random(10, 100))));
+					*/
 	}
 
 	public void draw() {
