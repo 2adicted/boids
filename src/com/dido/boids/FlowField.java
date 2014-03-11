@@ -8,14 +8,16 @@ import processing.core.PVector;
 
 public class FlowField {
 	MyBoids parent;
-	PVector[][] field;
-	PVector[][] location;
+	PVector[][][] field;
+	PVector[][][] location;
 	PVector origin;
 	int cols, rows;
 	int resolution;
 	int cell;
+	int levels = 2;
 	int n_min;
 	float zoff = 0.0f;
+	private int level_height = 300;
 
 	FlowField(MyBoids p) {
 		parent = p;
@@ -28,8 +30,8 @@ public class FlowField {
 			}
 		}
 		cell = parent.width / cols;
-		field = new PVector[cols][rows];
-		location = new PVector[cols][rows];
+		field = new PVector[cols][rows][levels];
+		location = new PVector[cols][rows][levels];
 		origin = new PVector(parent.width / 2, parent.height / 2);
 		init();
 	}
@@ -39,10 +41,12 @@ public class FlowField {
 		float y = 0.0f;
 		for (int i = 0; i < cols; i++) {
 			for (int j = 0; j < rows; j++) {
-				field[i][j] = new PVector(0, 0);
-				x = (float) (i * cell + cell * 0.5);
-				y = (float) (j * cell + cell * 0.5);
-				location[i][j] = new PVector(x, y);
+				for (int k = 0; k < levels; k++) {
+					field[i][j][k] = new PVector(0, 0, 0);
+					x = (float) (i * cell + cell * 0.5);
+					y = (float) (j * cell + cell * 0.5);
+					location[i][j][k] = new PVector(x, y, k * level_height);
+				}
 			}
 		}
 	}
@@ -57,8 +61,10 @@ public class FlowField {
 				PVector rand = new PVector((float) Math.cos(theta),
 						(float) Math.sin(theta));
 				rand.mult((float) 0.2);
-				field[i][j].add(rand);
-				yoff += 0.1;
+				for (int k = 0; k < levels; k++) {
+					field[i][j][k].add(rand);
+					yoff += 0.1;
+				}
 			}
 			xoff += 0.1;
 		}
@@ -69,19 +75,21 @@ public class FlowField {
 		if (parent.zones.size() > 0) {
 			for (int i = 0; i < cols; i++) {
 				for (int j = 0; j < rows; j++) {
-					PVector carry = new PVector();
-					for (Zone z : parent.zones) {
-						PVector desired = PVector.sub(new PVector(i * cell, j
-								* cell), z.origin);
-						float dis = z.magnitude - desired.mag();
-						if (dis > 0) {
-							dis = PApplet.map(dis, 0, z.magnitude, 2, 5);
-							desired.normalize();
-							desired.mult(-dis);
-							carry.add(desired);
+					for (int k = 0; k < levels; k++) {
+						PVector carry = new PVector();
+						for (Zone z : parent.zones) {
+							PVector desired = PVector.sub(new PVector(i * cell,
+									j * cell), z.origin);
+							float dis = z.magnitude - desired.mag();
+							if (dis > 0) {
+								dis = PApplet.map(dis, 0, z.magnitude, 2, 5);
+								desired.normalize();
+								desired.mult(-dis);
+								carry.add(desired);
+							}
 						}
+						field[i][j][k] = carry;
 					}
-					field[i][j] = carry;
 				}
 			}
 		}
@@ -91,15 +99,17 @@ public class FlowField {
 	void display() {
 		for (int i = 0; i < cols; i++) {
 			for (int j = 0; j < rows; j++) {
-				drawVector(field[i][j], i, j);
+				for (int k = 0; k < levels; k++) {
+					drawVector(field[i][j][k], i, j, k);
+				}
 			}
 		}
 	}
 
 	@SuppressWarnings("deprecation")
-	void drawVector(PVector v, int x, int y) {
+	void drawVector(PVector v, int x, int y, int lvl) {
 		parent.pushMatrix();
-		parent.translate(location[x][y].x, location[x][y].y);
+		parent.translate(location[x][y][lvl].x, location[x][y][lvl].y, location[x][y][lvl].z);
 		parent.stroke(20);
 		parent.strokeWeight(0.4f);
 		parent.rotate(v.heading2D());
@@ -117,8 +127,9 @@ public class FlowField {
 	PVector lookup(PVector lookup) {
 		float tempi = (float) (lookup.x - cell * 0.5) / cell;
 		float tempj = (float) (lookup.y - cell * 0.5) / cell;
+		int tempk = (int) (lookup.z/level_height);
 		int column = (int) PApplet.constrain(tempi, 0, cols - 1);
 		int row = (int) (PApplet.constrain(tempj, 0, rows - 1));
-		return field[column][row].get();
+		return field[column][row][tempk].get();
 	}
 }

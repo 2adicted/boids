@@ -25,23 +25,29 @@ public class MyBoids extends PApplet {
 	public int counter = 0;
 
 	public void setup() {
-		size(500, 250);
+		size(500, 250, OPENGL);
+		lights();
 		smooth();
 		zones = new ArrayList<Zone>();
 		agents = new ArrayList<Agent>();
 		map = new FlowField(this);
 		b = new Boundary(this, 8);
 		death = new Death(this);
-		/*
+		
 		for (int i = 0; i < 10; i++)
 			zones.add(new Zone(this,
 					new PVector(random(width), random(height)),
 					(random(10, 100))));
-					*/
+					
 	}
 
 	public void draw() {
 		background(220);
+
+		translate(width / 2, height / 2, -500);
+		rotateX(PI/4);
+		rotateZ(PI/6);
+		
 		map.update();
 		map.display();
 
