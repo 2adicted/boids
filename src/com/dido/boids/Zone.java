@@ -1,5 +1,6 @@
 package com.dido.boids;
 
+import controlP5.Println;
 import processing.core.PApplet;
 import processing.core.PVector;
 
@@ -7,11 +8,12 @@ public class Zone {
 	PApplet parent;
 	PVector origin;
 	int magnitude;
+	int level;
 
-	Zone(PApplet p, PVector o, float f) {
+	Zone(PApplet p, PVector o, float m) {
 		parent = p;
 		origin = o.get();
-		magnitude = (int) f;
+		magnitude = (int) m;
 	}
 
 	Zone(PVector o) {
@@ -24,6 +26,9 @@ public class Zone {
 
 	void display() {
 		parent.fill(250, 120);
-		parent.ellipse(origin.x, origin.y, magnitude * 2, magnitude * 2);
+		parent.pushMatrix();
+		parent.translate(origin.x, origin.y,origin.z);
+		parent.ellipse(0, 0, magnitude * 2, magnitude * 2);
+		parent.popMatrix();
 	}
 }

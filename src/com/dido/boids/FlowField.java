@@ -14,14 +14,17 @@ public class FlowField {
 	int cols, rows;
 	int resolution;
 	int cell;
-	int levels = 2;
+	int levels;
 	int n_min;
 	float zoff = 0.0f;
-	private int level_height = 300;
+	private int level_height;
 
 	FlowField(MyBoids p) {
 		parent = p;
+		this.level_height = parent.level_height;
+		this.levels = parent.num_floors;
 		n_min = 6;
+		//nai-malkoto obsto kratno za da e proporcionalno na rezoliuciata na modela
 		for (int i = n_min; i < 50; i++) {
 			if ((parent.width % i == 0) && (parent.height % i == 0)) {
 				cols = parent.width / i;
@@ -79,7 +82,7 @@ public class FlowField {
 						PVector carry = new PVector();
 						for (Zone z : parent.zones) {
 							PVector desired = PVector.sub(new PVector(i * cell,
-									j * cell), z.origin);
+									j * cell, k*level_height), z.origin);
 							float dis = z.magnitude - desired.mag();
 							if (dis > 0) {
 								dis = PApplet.map(dis, 0, z.magnitude, 2, 5);
